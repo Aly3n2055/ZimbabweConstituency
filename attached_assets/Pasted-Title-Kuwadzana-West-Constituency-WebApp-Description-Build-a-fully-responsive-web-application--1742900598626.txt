@@ -1,0 +1,39 @@
+Title: Kuwadzana West Constituency WebApp
+
+Description:
+Build a fully responsive web application for the Kuwadzana West constituency using Node.js with Express, React, and PostgreSQL. The application should adhere to govuk-frontend guidelines to ensure an accessible, official design. The site will provide real-time community updates, showcase development projects, display the leadership hierarchy, and announce upcoming events.
+
+Key Deliverables:
+1. Frontend:
+   - Use React integrated with govuk-frontend components for a consistent design.
+   - Implement a responsive layout with clear navigation.
+   - Sections:
+     - Community News & Updates: Display articles and announcements.
+     - Development Projects: Timeline and status updates.
+     - Leadership Directory: Profiles of key figures with contact details.
+     - Event Calendar: List upcoming and past events.
+     - Community Engagement: Feedback forms and discussion boards.
+
+2. Backend:
+   - Create a Node.js/Express server providing RESTful APIs.
+   - Implement JWT-based authentication and role-based access control (admins, board members, constituents, land buyers).
+   - Develop an admin panel for secure content management.
+
+3. Database (PostgreSQL):
+   - Design tables for Users, Articles, Projects, Leadership Profiles, Events, and Community Messages.
+   - Ensure proper relational integrity using foreign keys and indexes.
+   - Include tracking fields (e.g., views, timestamps).
+
+4. Deployment & Documentation:
+   - Deploy the frontend on Replit’s hosting environment.
+   - Configure backend on Replit, ensuring SSL for secure connections.
+   - Write comprehensive documentation including setup instructions, API endpoints, and testing guidelines.
+   - Integrate automated tests for key functionalities (authentication, CRUD operations, responsive design).
+
+Instructions:
+- Set up a Replit workspace with separate folders for frontend (React) and backend (Node.js/Express).
+- Use the govuk-frontend npm package to style the application.
+- Connect to a PostgreSQL database using a cloud-based provider or Replit’s integrated DB solution.
+- Ensure code is modular, well-documented, and follows best practices for security and performance.
+
+Your goal is to create a transparent, interactive, and official resource that empowers the Kuwadzana West community with up-to-date information and robust engagement tools.

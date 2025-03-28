@@ -90,11 +90,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
-      const validatedData = insertUserSchema.parse(credentials);
-      const res = await apiRequest("POST", "/api/register", validatedData);
-      return await res.json();
+      try {
+        console.log("Registration attempt for:", credentials.username);
+        const validatedData = insertUserSchema.parse(credentials);
+        
+        // Using fetch directly with more detailed error handling
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(validatedData),
+          credentials: "include"
+        });
+        
+        console.log("Registration response status:", response.status);
+        
+        // Handle non-OK responses
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: response.statusText }));
+          console.error("Registration error:", errorData);
+          throw new Error(errorData.message || "Registration failed");
+        }
+        
+        const userData = await response.json();
+        console.log("Registration successful, user data received");
+        return userData;
+      } catch (err) {
+        console.error("Registration mutation error:", err);
+        throw err;
+      }
     },
     onSuccess: (user: SelectUser) => {
+      console.log("Registration success - updating query cache");
       queryClient.setQueryData(["/api/user"], user);
       toast({
         title: "Registration successful",
@@ -102,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Registration mutation error handler:", error);
       toast({
         title: "Registration failed",
         description: error.message || "Could not create account",

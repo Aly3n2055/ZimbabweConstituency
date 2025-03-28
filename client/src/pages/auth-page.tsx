@@ -83,6 +83,7 @@ export default function AuthPage() {
       email: "",
       fullName: "",
       phoneNumber: "",
+      role: "user", // Default role for all registrations
     },
   });
 
@@ -94,7 +95,11 @@ export default function AuthPage() {
   // Handle register form submission
   function onRegisterSubmit(data: RegisterFormValues) {
     const { confirmPassword, ...registerData } = data;
-    registerMutation.mutate(registerData);
+    // Always set role to 'user' for new registrations
+    registerMutation.mutate({
+      ...registerData,
+      role: 'user'
+    });
   }
 
   return (
@@ -228,7 +233,11 @@ export default function AuthPage() {
                                     <Input 
                                       placeholder="Enter your full name" 
                                       className="pl-10" 
-                                      {...field} 
+                                      value={field.value || ''}
+                                      onChange={field.onChange}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
                                     />
                                   </div>
                                 </FormControl>
@@ -249,7 +258,11 @@ export default function AuthPage() {
                                       placeholder="Enter your email address" 
                                       type="email" 
                                       className="pl-10" 
-                                      {...field} 
+                                      value={field.value || ''}
+                                      onChange={field.onChange}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
                                     />
                                   </div>
                                 </FormControl>
@@ -269,7 +282,11 @@ export default function AuthPage() {
                                     <Input 
                                       placeholder="Enter your phone number" 
                                       className="pl-10" 
-                                      {...field} 
+                                      value={field.value || ''}
+                                      onChange={field.onChange}
+                                      onBlur={field.onBlur}
+                                      name={field.name}
+                                      ref={field.ref}
                                     />
                                   </div>
                                 </FormControl>

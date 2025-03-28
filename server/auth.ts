@@ -36,6 +36,8 @@ export function setupAuth(app: Express) {
     store: storage.sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: false, // Set to true in production with HTTPS
+      sameSite: 'lax' // Helps with CSRF
     }
   };
 
@@ -85,28 +87,63 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      console.log("Registration attempt:", req.body.username);
+      
+      // Validate input
+      if (!req.body.username || !req.body.password || !req.body.role) {
+        console.log("Registration failed: Missing required fields");
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
+        console.log("Registration failed: Username already exists", req.body.username);
         return res.status(400).json({ message: "Username already exists" });
       }
 
-      const user = await storage.createUser({
+      console.log("Creating new user:", req.body.username);
+      const hashedPassword = await hashPassword(req.body.password);
+      
+      const userData = {
         ...req.body,
-        password: await hashPassword(req.body.password),
-      });
-
-      req.login(user, (err) => {
-        if (err) return next(err);
-        // Don't return the password hash
-        const { password, ...userWithoutPassword } = user;
-        res.status(201).json(userWithoutPassword);
-      });
+        password: hashedPassword,
+        email: req.body.email || null,
+        fullName: req.body.fullName || null,
+        phoneNumber: req.body.phoneNumber || null
+      };
+      
+      try {
+        const user = await storage.createUser(userData);
+        console.log("User created successfully:", user.username, "with ID:", user.id);
+        
+        req.login(user, (err) => {
+          if (err) {
+            console.error("Login after registration failed:", err);
+            return next(err);
+          }
+          // Don't return the password hash
+          const { password, ...userWithoutPassword } = user;
+          res.status(201).json(userWithoutPassword);
+        });
+      } catch (dbError) {
+        console.error("Database error during user creation:", dbError);
+        return res.status(500).json({ message: "Error creating user account" });
+      }
     } catch (error) {
+      console.error("Unexpected error during registration:", error);
       next(error);
     }
   });
 
   app.post("/api/login", (req, res, next) => {
+    // Validate request
+    if (!req.body.username || !req.body.password) {
+      console.log("Login failed: Missing credentials");
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+    
+    console.log("Login attempt for:", req.body.username);
+    
     passport.authenticate("local", (err: any, user: Express.User | false, info: any) => {
       if (err) {
         console.error("Login error:", err);
@@ -114,8 +151,8 @@ export function setupAuth(app: Express) {
       }
       
       if (!user) {
-        console.log("Login failed for username:", req.body.username);
-        return res.status(401).json({ message: "Invalid username or password" });
+        console.log("Login failed for username:", req.body.username, "Info:", info?.message || "No message");
+        return res.status(401).json({ message: info?.message || "Invalid username or password" });
       }
       
       req.login(user, (loginErr) => {

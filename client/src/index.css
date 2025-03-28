@@ -9,5 +9,108 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    padding-top: 0;
+    transition: padding-top 0.3s ease;
+  }
+  
+  /* Adjust body when offline indicator is shown */
+  body.offline-mode {
+    padding-top: 2.5rem;
+  }
+}
+
+@layer components {
+  /* Offline status indicators */
+  .offline-indicator {
+    @apply fixed top-0 left-0 right-0 bg-destructive text-destructive-foreground py-2 px-4 flex items-center justify-center space-x-2 z-50 shadow-lg;
+  }
+  
+  /* Different variants of status indicators */
+  .status-server-offline {
+    @apply bg-amber-600 text-white;
+  }
+  
+  .status-device-offline {
+    @apply bg-destructive text-destructive-foreground;
+  }
+  
+  .status-reconnecting {
+    @apply bg-blue-600 text-white animate-pulse;
+  }
+  
+  /* Styling for cached content */
+  .cached-content {
+    @apply relative;
+  }
+  
+  .cached-badge {
+    @apply absolute top-2 right-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-md flex items-center gap-1 opacity-80 z-10;
+  }
+  
+  /* Cached badge variants */
+  .cached-badge-offline {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .cached-badge-server-offline {
+    @apply bg-amber-100 text-amber-800;
+  }
+  
+  .cached-badge-cached {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  /* Style for unclickable elements when offline */
+  .offline-disabled {
+    @apply opacity-60 cursor-not-allowed pointer-events-none;
+  }
+  
+  /* Generic offline content styling */
+  body.offline-mode .offline-only {
+    @apply block;
+  }
+  
+  body:not(.offline-mode) .offline-only {
+    @apply hidden;
+  }
+  
+  body.offline-mode .online-only {
+    @apply hidden;
+  }
+  
+  body:not(.offline-mode) .online-only {
+    @apply block;
+  }
+  
+  /* Zimbabwe flag color utilities */
+  .zim-green {
+    @apply bg-[#006400];
+  }
+  
+  .zim-yellow {
+    @apply bg-[#FFD700];
+  }
+  
+  .zim-red {
+    @apply bg-[#FF0000];
+  }
+  
+  .zim-black {
+    @apply bg-black;
+  }
+  
+  .zim-white {
+    @apply bg-white;
+  }
+  
+  /* Zimbabwe flag color gradient */
+  .zim-flag-gradient {
+    background: linear-gradient(to right, 
+      #006400 0%, #006400 20%,
+      #FFD700 20%, #FFD700 40%,
+      #FF0000 40%, #FF0000 60%,
+      #000000 60%, #000000 80%,
+      #FFFFFF 80%, #FFFFFF 100%
+    );
   }
 }

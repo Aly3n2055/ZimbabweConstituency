@@ -21,6 +21,11 @@ import EmergencyContactsPage from "./pages/emergency-contacts-page";
 import FAQsPage from "./pages/faqs-page";
 import { ProtectedRoute, AdminRoute } from "./lib/protected-route";
 import { TooltipProvider } from "./hooks/use-tooltips";
+import { OfflineIndicator } from "@/components/ui/offline-indicator";
+import { useEffect } from "react";
+import { storeOfflineData } from "./lib/service-worker";
+import { getHonorablesData } from "./lib/honorables-data";
+import { startPeriodicConnectivityChecks, checkServerConnectivity } from "./lib/connectivity-check";
 
 function Router() {
   return (
@@ -56,8 +61,38 @@ function Router() {
 }
 
 function App() {
+  // Cache important data for offline use and start connectivity checks
+  useEffect(() => {
+    const cacheInitialData = async () => {
+      try {
+        // Cache honorables data for offline use
+        const honorablesData = getHonorablesData();
+        await storeOfflineData('honorables', honorablesData);
+        
+        // Check server connectivity initially
+        await checkServerConnectivity();
+        
+        // Pre-cache other important static data here
+        // This ensures users have access to critical information even when offline
+      } catch (error) {
+        console.error('Failed to cache initial data:', error);
+      }
+    };
+    
+    cacheInitialData();
+    
+    // Start periodic connectivity checks (every 30 seconds)
+    const stopConnectivityChecks = startPeriodicConnectivityChecks(30000);
+    
+    // Clean up on unmount
+    return () => {
+      stopConnectivityChecks();
+    };
+  }, []);
+  
   return (
     <>
+      <OfflineIndicator />
       <TooltipProvider>
         <Router />
       </TooltipProvider>

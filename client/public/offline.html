@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Kuwadzana West Constituency</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: #006400;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .offline-container {
+            max-width: 600px;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin-bottom: 1rem;
+            color: #006400;
+        }
+        
+        p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #006400;
+        }
+        
+        .cached-content {
+            margin-top: 2rem;
+            width: 100%;
+        }
+        
+        .cached-section {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .cached-section h3 {
+            color: #006400;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reload-button {
+            display: inline-block;
+            background-color: #006400;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .reload-button:hover {
+            background-color: #004d00;
+        }
+        
+        footer {
+            background-color: #006400;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .flag-colors {
+            display: flex;
+            height: 6px;
+            width: 100%;
+        }
+        
+        .flag-green, .flag-yellow, .flag-red, .flag-black, .flag-white {
+            flex: 1;
+        }
+        
+        .flag-green {
+            background-color: #006400;
+        }
+        
+        .flag-yellow {
+            background-color: #FFD700;
+        }
+        
+        .flag-red {
+            background-color: #FF0000;
+        }
+        
+        .flag-black {
+            background-color: #000000;
+        }
+        
+        .flag-white {
+            background-color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kuwadzana West Constituency</h1>
+    </header>
+    
+    <div class="flag-colors">
+        <div class="flag-green"></div>
+        <div class="flag-yellow"></div>
+        <div class="flag-red"></div>
+        <div class="flag-black"></div>
+        <div class="flag-white"></div>
+    </div>
+    
+    <main>
+        <div class="offline-container">
+            <div class="icon">📶</div>
+            <h1>You are offline</h1>
+            <p>The Kuwadzana West Constituency Portal is currently unavailable because you are not connected to the internet.</p>
+            <p>Some content may still be available from your previous visits.</p>
+            
+            <button class="reload-button" onclick="window.location.reload()">Try Again</button>
+            
+            <div class="cached-content">
+                <h2>Available Offline Content</h2>
+                <p>The following sections may have cached content from your previous visits:</p>
+                
+                <div id="cached-content-list">
+                    <!-- This will be populated by JavaScript if cached content exists -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="flag-colors">
+        <div class="flag-white"></div>
+        <div class="flag-black"></div>
+        <div class="flag-red"></div>
+        <div class="flag-yellow"></div>
+        <div class="flag-green"></div>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Kuwadzana West Constituency. All Rights Reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Check for cached content when offline page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentList = document.getElementById('cached-content-list');
+            
+            // Check if Cache API is available
+            if ('caches' in window) {
+                const endpoints = [
+                    { name: 'News & Updates', url: '/api/news' },
+                    { name: 'Development Projects', url: '/api/projects' },
+                    { name: 'Leadership Team', url: '/api/leaders' },
+                    { name: 'Upcoming Events', url: '/api/events' }
+                ];
+                
+                let foundCache = false;
+                
+                // Check each API endpoint for cached content
+                Promise.all(endpoints.map(endpoint => {
+                    return caches.match(new Request(endpoint.url))
+                        .then(response => {
+                            if (response) {
+                                foundCache = true;
+                                return { name: endpoint.name, available: true };
+                            }
+                            return { name: endpoint.name, available: false };
+                        });
+                }))
+                .then(results => {
+                    if (!foundCache) {
+                        contentList.innerHTML = '<p>No cached content available. Connect to the internet to view content.</p>';
+                        return;
+                    }
+                    
+                    results.forEach(result => {
+                        if (result.available) {
+                            const section = document.createElement('div');
+                            section.className = 'cached-section';
+                            section.innerHTML = `
+                                <h3>${result.name}</h3>
+                                <p>Cached content available</p>
+                                <a href="/" class="reload-button">View Homepage</a>
+                            `;
+                            contentList.appendChild(section);
+                        }
+                    });
+                });
+            } else {
+                contentList.innerHTML = '<p>Your browser does not support offline content.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -95,3 +95,26 @@ export function getAllHonorables(): Honorable[] {
   const data = getHonorablesData();
   return Object.values(data.honorables);
 }
+
+// Helper function to get honorables data with offline capability
+export async function getHonorablesDataAsync(): Promise<HonorablesData> {
+  try {
+    // Try to get data from cache if offline
+    if (!navigator.onLine) {
+      const { getOfflineData } = await import('./service-worker');
+      const cachedData = await getOfflineData('honorables');
+      
+      if (cachedData) {
+        console.log('Using cached honorables data');
+        return cachedData as HonorablesData;
+      }
+    }
+    
+    // If online or no cached data, return the bundled data
+    return honorablesData as HonorablesData;
+  } catch (error) {
+    console.error('Failed to retrieve honorables data:', error);
+    // Fallback to bundled data
+    return honorablesData as HonorablesData;
+  }
+}

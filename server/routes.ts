@@ -7,7 +7,12 @@ import { insertNewsSchema, insertProjectSchema, insertLeaderSchema, insertEventS
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes
   setupAuth(app);
-
+  
+  // Simple ping endpoint for connectivity checks
+  app.get("/api/ping", (req, res) => {
+    res.status(200).send("pong");
+  });
+  
   // News API routes
   app.get("/api/news", async (req, res) => {
     try {

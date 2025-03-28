@@ -7,37 +7,19 @@ import ProjectsPreview from "@/components/home/projects-preview";
 import LeadershipPreview from "@/components/home/leadership-preview";
 import EventsPreview from "@/components/home/events-preview";
 import CommunityEngagement from "@/components/home/community-engagement";
+import WelcomeAnimation from "@/components/home/welcome-animation";
 import { ContextualTooltip } from "@/components/ui/contextual-tooltip";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Settings } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { useTooltips } from "@/hooks/use-tooltips";
 
 export default function HomePage() {
   const { resetTooltips } = useTooltips();
-  const [showWelcome, setShowWelcome] = useState(true);
-  
-  // Hide welcome banner after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <>
       <Header />
-      {showWelcome && (
-        <div className="bg-primary text-primary-foreground p-4 text-center">
-          <p className="font-medium">
-            Welcome to the Kuwadzana West Constituency Portal!
-            <Button variant="link" className="ml-2 text-primary-foreground underline" onClick={() => setShowWelcome(false)}>
-              Dismiss
-            </Button>
-          </p>
-        </div>
-      )}
+      <WelcomeAnimation />
       <main>
         <ContextualTooltip
           id="homeIntro"

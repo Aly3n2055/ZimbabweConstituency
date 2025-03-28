@@ -4,10 +4,8 @@ import {
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
-import * as schema from "../../shared/schema.js"; 
-type SelectUser = any; // Temporary fix
-type InsertUser = any; // Temporary fix
-const insertUserSchema = { parse: (data: any) => data }; // Temporary fix
+// Import types from schema
+import { User as SelectUser, InsertUser, insertUserSchema } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "./use-toast";
 import { z } from "zod";

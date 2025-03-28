@@ -15,7 +15,8 @@ import {
   ExternalLink,
   Info,
   ChevronRight,
-  Copy
+  Copy,
+  Download
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -706,11 +707,11 @@ export default function EmergencyContactsPage() {
               </p>
               <div className="flex space-x-4">
                 <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                  <DownloadIcon className="h-4 w-4 mr-2" />
+                  <Download className="h-4 w-4 mr-2" />
                   Print Version
                 </Button>
                 <Button variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                  <DownloadIcon className="h-4 w-4 mr-2" />
+                  <Download className="h-4 w-4 mr-2" />
                   Digital Version
                 </Button>
               </div>

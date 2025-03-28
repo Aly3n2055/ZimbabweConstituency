@@ -1,115 +1,59 @@
-
 # Kuwadzana West Constituency Web Application
 
-A modern, responsive web application built to serve the Kuwadzana West community by providing easy access to constituency information, development projects, and community services.
+A dynamic web application for the Kuwadzana West ZANU-PF constituency, designed to enhance community engagement and communication through modern digital tools.
 
-## Tech Stack
+## Features
 
-### Frontend
-- React 18 with TypeScript
-- Tailwind CSS for styling
-- Shadcn UI components
-- Vite for build tooling
-- React Query for data fetching
-- React Hook Form for form management
-- Wouter for routing
+- Responsive design for all device sizes
+- Community engagement portal
+- News and updates section
+- Development projects showcase
+- Leadership directory
+- Event calendar
+- Resources section with government services
+- Emergency contacts and funding opportunities
+- FAQs and constituency reports
 
-### Backend
-- Node.js with Express
-- TypeScript
-- Drizzle ORM with Neon Postgres
-- Express Session with PostgreSQL store
-- Passport.js for authentication
+## Technologies Used
 
-## Core Features
+- React (frontend library)
+- TypeScript (type-safe JavaScript)
+- Express.js (backend framework)
+- TanStack Query (data fetching)
+- Tailwind CSS (styling)
+- Shadcn UI (component library)
+- Drizzle ORM (database management)
+- PostgreSQL (database)
 
-1. **Constituency Information**
-   - About & Mission statement
-   - Leadership profiles
-   - Strategic goals
-   - Contact information
+## Deploying to Netlify
 
-2. **Development Projects**
-   - Project tracking
-   - Progress updates
-   - Infrastructure initiatives
+### Step 1: Export the Code as ZIP
 
-3. **Community Services**
-   - Emergency contacts
-   - Funding opportunities
-   - Community events
-   - News updates
+Download the full project code as a ZIP file from Replit.
 
-4. **Interactive Features**
-   - User authentication
-   - Community feedback
-   - Event registration
-   - Project updates
+### Step 2: Deploy to Netlify
 
-## Project Structure
+1. Log in to your Netlify account (or create one at [netlify.com](https://www.netlify.com))
+2. Click on "Sites" > "Add new site" > "Import an existing project"
+3. Drag and drop the ZIP file or select it from your computer
+4. Netlify will automatically detect the configuration from the `netlify.toml` file
+5. Click "Deploy site"
 
-```
-├── client/           # Frontend React application
-├── server/           # Backend Express application
-├── shared/           # Shared TypeScript types/schemas
-└── attached_assets/  # Static assets and content
-```
+### Step 3: Configure Environment Variables
 
-## Setup & Development
+After deployment, go to:
+1. Site settings > Environment variables
+2. Add the required environment variables:
+   - `DATABASE_URL`: Your PostgreSQL database URL
+   - Any other environment variables used in your application
 
-1. Install dependencies:
-```bash
-npm install
-```
+### Step 4: Set Up Database
 
-2. Start development server:
-```bash
-npm run dev
-```
+1. Provision a PostgreSQL database (Netlify partners with Neon for serverless PostgreSQL)
+2. Run the database migrations using Drizzle
 
-The application will be available at port 5000.
+### Additional Information
 
-## Current Status
-
-The application has completed its initial development phase with:
-- Responsive UI implementation
-- Core feature implementation
-- Basic authentication system
-- Data management setup
-- API integration
-
-## Future Roadmap
-
-1. **Phase 2: Enhanced Engagement**
-   - Interactive polls and surveys
-   - Community forum
-   - Real-time notifications
-   - Mobile app development
-
-2. **Phase 3: Data Analytics**
-   - Project impact metrics
-   - Community participation analytics
-   - Resource allocation tracking
-   - Performance dashboards
-
-3. **Phase 4: Integration**
-   - SMS notifications
-   - Payment gateway integration
-   - Document management system
-   - Multi-language support
-
-## Deployment
-
-The application is configured for deployment on Replit with autoscaling capabilities. The deployment configuration includes:
-- Production build optimization
-- Automatic scaling based on traffic
-- Persistent data storage
-- Secure session management
-
-## Contributing
-
-This is an official constituency project. For contributions or suggestions, please contact the constituency office.
-
-## License
-
-Copyright © 2024 Kuwadzana West Constituency. All rights reserved.
+- The application uses the `/dist` directory for the built assets
+- The `netlify.toml` file contains all the necessary configuration for deployment
+- All API routes will be served as serverless functions automatically

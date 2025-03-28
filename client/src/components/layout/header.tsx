@@ -122,7 +122,7 @@ export default function Header() {
                 className="bg-[#008751] hover:bg-[#006B40] text-white"
               >
                 <User className="mr-2 h-4 w-4" />
-                Login
+                Go to Dashboard
               </Button>
             </Link>
           </div>

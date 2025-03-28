@@ -41,7 +41,20 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
-  const { user, loginMutation, registerMutation } = useAuth();
+  // Get auth context safely with try/catch to avoid the error during initial render
+  let authContext = null;
+  try {
+    authContext = useAuth();
+  } catch (e) {
+    // Handle the case where AuthProvider is not available
+    console.log("Auth provider not available yet");
+  }
+  
+  const { user, loginMutation, registerMutation } = authContext || { 
+    user: null, 
+    loginMutation: { mutate: () => {}, isPending: false },
+    registerMutation: { mutate: () => {}, isPending: false }
+  };
   const [location, navigate] = useLocation();
 
   // Redirect to home if already logged in

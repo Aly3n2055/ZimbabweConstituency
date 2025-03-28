@@ -5,6 +5,23 @@ import { db } from "./db";
 import { eq, desc, asc } from "drizzle-orm";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import { log } from "./vite";
+
+// Helper function to handle database errors
+function handleDbError(operation: string, error: any): never {
+  log(`Database error during ${operation}: ${error.message}`, 'database');
+  console.error(`Database error during ${operation}:`, error);
+  
+  // For WAMP local development, you may want additional debugging info
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Connection info:', 
+      `Host: ${process.env.PGHOST || 'from connection string'}`,
+      `Database: ${process.env.PGDATABASE || 'from connection string'}`
+    );
+  }
+  
+  throw error;
+}
 
 const MemoryStore = createMemoryStore(session);
 const PostgresSessionStore = connectPg(session);
@@ -310,22 +327,39 @@ export class DatabaseStorage implements IStorage {
 
   // User methods
   async getUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    try {
+      return await db.select().from(users);
+    } catch (error) {
+      return handleDbError('getUsers', error);
+    }
   }
   
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (error) {
+      return handleDbError('getUser', error);
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (error) {
+      return handleDbError('getUserByUsername', error);
+    }
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
+    try {
+      const [user] = await db.insert(users).values(insertUser).returning();
+      log(`✅ User created successfully: ${insertUser.username}`, 'database');
+      return user;
+    } catch (error) {
+      return handleDbError('createUser', error);
+    }
   }
 
   // News methods

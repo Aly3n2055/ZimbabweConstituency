@@ -41,11 +41,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const validatedData = loginSchema.parse(credentials);
-      const res = await apiRequest("POST", "/api/login", validatedData);
-      return await res.json();
+      try {
+        console.log("Login attempt for:", credentials.username);
+        const validatedData = loginSchema.parse(credentials);
+        
+        // Using fetch directly with more detailed error handling
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(validatedData),
+          credentials: "include"
+        });
+        
+        console.log("Login response status:", response.status);
+        
+        // Handle non-OK responses
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: response.statusText }));
+          console.error("Login error:", errorData);
+          throw new Error(errorData.message || "Login failed");
+        }
+        
+        const userData = await response.json();
+        console.log("Login successful, user data received");
+        return userData;
+      } catch (err) {
+        console.error("Login mutation error:", err);
+        throw err;
+      }
     },
     onSuccess: (user: SelectUser) => {
+      console.log("Login success - updating query cache");
       queryClient.setQueryData(["/api/user"], user);
       toast({
         title: "Login successful",
@@ -53,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Login mutation error handler:", error);
       toast({
         title: "Login failed",
         description: error.message || "Invalid username or password",

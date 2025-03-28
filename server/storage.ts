@@ -137,7 +137,15 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userCounter++;
-    const user: User = { ...insertUser, id };
+    // Ensure all optional fields have proper null values
+    const userData = {
+      ...insertUser,
+      email: insertUser.email || null,
+      fullName: insertUser.fullName || null,
+      phoneNumber: insertUser.phoneNumber || null
+    };
+    
+    const user: User = { ...userData, id };
     this.users.set(id, user);
     return user;
   }
@@ -156,7 +164,14 @@ export class MemStorage implements IStorage {
   async createNews(newsItem: InsertNews): Promise<News> {
     const id = this.newsCounter++;
     const createdAt = new Date();
-    const news: News = { ...newsItem, id, createdAt };
+    
+    const newsData = {
+      ...newsItem,
+      imageUrl: newsItem.imageUrl || null,
+      createdBy: newsItem.createdBy || null
+    };
+    
+    const news: News = { ...newsData, id, createdAt };
     this.newsItems.set(id, news);
     return news;
   }
@@ -187,7 +202,16 @@ export class MemStorage implements IStorage {
 
   async createProject(project: InsertProject): Promise<Project> {
     const id = this.projectCounter++;
-    const newProject: Project = { ...project, id };
+    
+    const projectData = {
+      ...project,
+      imageUrl: project.imageUrl || null,
+      createdBy: project.createdBy || null,
+      targetDate: project.targetDate || null,
+      completionPercentage: project.completionPercentage || null
+    };
+    
+    const newProject: Project = { ...projectData, id };
     this.projectItems.set(id, newProject);
     return newProject;
   }
@@ -218,7 +242,20 @@ export class MemStorage implements IStorage {
 
   async createLeader(leader: InsertLeader): Promise<Leader> {
     const id = this.leaderCounter++;
-    const newLeader: Leader = { ...leader, id };
+    
+    const leaderData = {
+      ...leader,
+      email: leader.email || null,
+      phoneNumber: leader.phoneNumber || null,
+      imageUrl: leader.imageUrl || null,
+      location: leader.location || null,
+      biography: leader.biography || null,
+      facebookUrl: leader.facebookUrl || null,
+      twitterUrl: leader.twitterUrl || null,
+      whatsappNumber: leader.whatsappNumber || null
+    };
+    
+    const newLeader: Leader = { ...leaderData, id };
     this.leaderItems.set(id, newLeader);
     return newLeader;
   }
@@ -251,7 +288,14 @@ export class MemStorage implements IStorage {
 
   async createEvent(event: InsertEvent): Promise<Event> {
     const id = this.eventCounter++;
-    const newEvent: Event = { ...event, id };
+    
+    const eventData = {
+      ...event,
+      createdBy: event.createdBy || null,
+      endTime: event.endTime || null
+    };
+    
+    const newEvent: Event = { ...eventData, id };
     this.eventItems.set(id, newEvent);
     return newEvent;
   }
@@ -286,7 +330,13 @@ export class MemStorage implements IStorage {
     const id = this.feedbackCounter++;
     const createdAt = new Date();
     const isResolved = false;
-    const feedback: Feedback = { ...feedbackItem, id, createdAt, isResolved };
+    
+    const feedbackData = {
+      ...feedbackItem,
+      phoneNumber: feedbackItem.phoneNumber || null
+    };
+    
+    const feedback: Feedback = { ...feedbackData, id, createdAt, isResolved };
     this.feedbackItems.set(id, feedback);
     return feedback;
   }
@@ -354,7 +404,15 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     try {
-      const [user] = await db.insert(users).values(insertUser).returning();
+      // Ensure all required fields have values to match our schema
+      const userData = {
+        ...insertUser,
+        email: insertUser.email || null,
+        fullName: insertUser.fullName || null,
+        phoneNumber: insertUser.phoneNumber || null
+      };
+      
+      const [user] = await db.insert(users).values(userData).returning();
       log(`✅ User created successfully: ${insertUser.username}`, 'database');
       return user;
     } catch (error) {
@@ -373,8 +431,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNews(newsItem: InsertNews): Promise<News> {
+    const newsData = {
+      ...newsItem,
+      imageUrl: newsItem.imageUrl || null,
+      createdBy: newsItem.createdBy || null,
+      createdAt: new Date()
+    };
+    
     const [createdNews] = await db.insert(news)
-      .values({ ...newsItem, createdAt: new Date() })
+      .values(newsData)
       .returning();
     return createdNews;
   }
@@ -403,7 +468,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createProject(project: InsertProject): Promise<Project> {
-    const [createdProject] = await db.insert(projects).values(project).returning();
+    const projectData = {
+      ...project,
+      imageUrl: project.imageUrl || null,
+      createdBy: project.createdBy || null,
+      targetDate: project.targetDate || null,
+      completionPercentage: project.completionPercentage || null
+    };
+    
+    const [createdProject] = await db.insert(projects).values(projectData).returning();
     return createdProject;
   }
 
@@ -431,7 +504,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLeader(leader: InsertLeader): Promise<Leader> {
-    const [createdLeader] = await db.insert(leaders).values(leader).returning();
+    const leaderData = {
+      ...leader,
+      email: leader.email || null,
+      phoneNumber: leader.phoneNumber || null,
+      imageUrl: leader.imageUrl || null,
+      location: leader.location || null,
+      biography: leader.biography || null,
+      facebookUrl: leader.facebookUrl || null,
+      twitterUrl: leader.twitterUrl || null,
+      whatsappNumber: leader.whatsappNumber || null
+    };
+    
+    const [createdLeader] = await db.insert(leaders).values(leaderData).returning();
     return createdLeader;
   }
 
@@ -459,7 +544,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createEvent(event: InsertEvent): Promise<Event> {
-    const [createdEvent] = await db.insert(events).values(event).returning();
+    const eventData = {
+      ...event,
+      createdBy: event.createdBy || null,
+      endTime: event.endTime || null
+    };
+    
+    const [createdEvent] = await db.insert(events).values(eventData).returning();
     return createdEvent;
   }
 
@@ -487,8 +578,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFeedback(feedbackItem: InsertFeedback): Promise<Feedback> {
+    const feedbackData = {
+      ...feedbackItem,
+      phoneNumber: feedbackItem.phoneNumber || null,
+      createdAt: new Date(),
+      isResolved: false
+    };
+    
     const [createdFeedback] = await db.insert(feedback)
-      .values({ ...feedbackItem, createdAt: new Date(), isResolved: false })
+      .values(feedbackData)
       .returning();
     return createdFeedback;
   }

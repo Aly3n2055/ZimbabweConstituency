@@ -47,13 +47,27 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
+        console.log(`Attempting login for user: ${username}`);
+        
+        // Get user from database
         const user = await storage.getUserByUsername(username);
-        if (!user || !(await comparePasswords(password, user.password))) {
-          return done(null, false);
-        } else {
-          return done(null, user);
+        
+        if (!user) {
+          console.log(`User not found: ${username}`);
+          return done(null, false, { message: "Username not found" });
         }
+        
+        // Check password
+        const passwordMatch = await comparePasswords(password, user.password);
+        if (!passwordMatch) {
+          console.log(`Invalid password for user: ${username}`);
+          return done(null, false, { message: "Invalid password" });
+        }
+        
+        console.log(`User authenticated successfully: ${username}`);
+        return done(null, user);
       } catch (error) {
+        console.error(`Login error for ${username}:`, error);
         return done(error);
       }
     }),
@@ -92,10 +106,30 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    // Don't return the password hash
-    const { password, ...userWithoutPassword } = req.user!;
-    res.status(200).json(userWithoutPassword);
+  app.post("/api/login", (req, res, next) => {
+    passport.authenticate("local", (err: any, user: Express.User | false, info: any) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ message: "Internal server error during login" });
+      }
+      
+      if (!user) {
+        console.log("Login failed for username:", req.body.username);
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+      
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error("Session login error:", loginErr);
+          return res.status(500).json({ message: "Error during login process" });
+        }
+        
+        console.log("User logged in successfully:", user.username);
+        // Don't return the password hash
+        const { password, ...userWithoutPassword } = user;
+        return res.status(200).json(userWithoutPassword);
+      });
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {

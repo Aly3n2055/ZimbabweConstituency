@@ -57,10 +57,12 @@ function Router() {
 
 function App() {
   return (
-    <TooltipProvider>
-      <Router />
+    <>
+      <TooltipProvider>
+        <Router />
+      </TooltipProvider>
       <Toaster />
-    </TooltipProvider>
+    </>
   );
 }
 

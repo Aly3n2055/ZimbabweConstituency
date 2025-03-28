@@ -13,8 +13,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, HelpCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ContextualTooltip } from "@/components/ui/contextual-tooltip";
+import { useTooltips } from "@/hooks/use-tooltips";
 
 // Form validation schema
 const contactFormSchema = z.object({
@@ -31,6 +33,7 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
+  const { resetTooltips } = useTooltips();
   
   // Initialize form
   const form = useForm<ContactFormValues>({
@@ -80,7 +83,28 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Form */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-heading font-semibold mb-6">Send Us a Message</h2>
+            <ContextualTooltip
+              id="contactForm"
+              title="Contact Form Help"
+              description={
+                <div>
+                  <p>Use this form to send a message to the Kuwadzana West Constituency office. Here's how to fill it out:</p>
+                  <ul className="list-disc pl-5 mt-2">
+                    <li>Fill in your name and email address so we can get back to you</li>
+                    <li>Phone number is optional but helpful for urgent matters</li>
+                    <li>Choose a clear subject that describes your inquiry</li>
+                    <li>Provide as much detail as possible in your message</li>
+                  </ul>
+                </div>
+              }
+              side="top"
+              contentClassName="max-w-md"
+            >
+              <div className="flex items-center mb-6">
+                <h2 className="text-2xl font-heading font-semibold">Send Us a Message</h2>
+                <HelpCircle className="h-5 w-5 ml-2 text-primary/70" />
+              </div>
+            </ContextualTooltip>
             
             {isSuccess ? (
               <div className="bg-green-50 border border-green-200 rounded-md p-6 text-center">
@@ -96,33 +120,49 @@ export default function ContactPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <ContextualTooltip
+                      id="nameField"
+                      title="Your Full Name"
+                      description="Please enter your full name so we know how to address you in our response."
+                      side="right"
+                      align="start"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Your Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </ContextualTooltip>
                     
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <Input placeholder="your@email.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <ContextualTooltip
+                      id="emailField"
+                      title="Email Address"
+                      description="We'll use this email to respond to your inquiry. Make sure it's correct."
+                      side="left"
+                      align="start"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email Address</FormLabel>
+                            <FormControl>
+                              <Input placeholder="your@email.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </ContextualTooltip>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -140,38 +180,53 @@ export default function ContactPage() {
                       )}
                     />
                     
+                    <ContextualTooltip
+                      id="subjectField"
+                      title="Message Subject"
+                      description="A clear subject helps us route your request to the right department."
+                      side="left"
+                      align="start"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="subject"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Subject</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your message subject" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </ContextualTooltip>
+                  </div>
+                  
+                  <ContextualTooltip
+                    id="messageField"
+                    title="Your Message"
+                    description="Please provide detailed information about your inquiry. The more details you provide, the better we can assist you."
+                    side="top"
+                  >
                     <FormField
                       control={form.control}
-                      name="subject"
+                      name="message"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Subject</FormLabel>
+                          <FormLabel>Your Message</FormLabel>
                           <FormControl>
-                            <Input placeholder="Your message subject" {...field} />
+                            <Textarea 
+                              placeholder="How can we help you?" 
+                              className="min-h-[150px]" 
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Your Message</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="How can we help you?" 
-                            className="min-h-[150px]" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  </ContextualTooltip>
                   
                   <Button 
                     type="submit" 
@@ -297,6 +352,18 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
+      </div>
+      
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button
+          variant="outline"
+          size="sm"
+          className="mr-2 bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={resetTooltips}
+        >
+          <HelpCircle className="h-4 w-4 mr-2" />
+          Show Help
+        </Button>
       </div>
     </main>
   );

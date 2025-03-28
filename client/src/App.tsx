@@ -20,6 +20,7 @@ import FundingOpportunitiesPage from "./pages/funding-opportunities-page";
 import EmergencyContactsPage from "./pages/emergency-contacts-page";
 import FAQsPage from "./pages/faqs-page";
 import { ProtectedRoute, AdminRoute } from "./lib/protected-route";
+import { TooltipProvider } from "./hooks/use-tooltips";
 
 function Router() {
   return (
@@ -56,10 +57,10 @@ function Router() {
 
 function App() {
   return (
-    <>
+    <TooltipProvider>
       <Router />
       <Toaster />
-    </>
+    </TooltipProvider>
   );
 }
 

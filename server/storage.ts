@@ -1,12 +1,18 @@
 import { users, User, InsertUser, news, News, InsertNews, projects, Project, InsertProject, leaders, Leader, InsertLeader, events, Event, InsertEvent, feedback, Feedback, InsertFeedback } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { db } from "./db";
+import { eq, desc, asc } from "drizzle-orm";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
 const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 // Interface for storage operations
 export interface IStorage {
   // User operations
+  getUsers(): Promise<User[]>;
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
@@ -47,7 +53,7 @@ export interface IStorage {
   resolveFeedback(id: number): Promise<Feedback | undefined>;
   
   // Session store for authentication
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any to avoid SessionStore type issues
 }
 
 export class MemStorage implements IStorage {
@@ -58,7 +64,7 @@ export class MemStorage implements IStorage {
   private eventItems: Map<number, Event>;
   private feedbackItems: Map<number, Feedback>;
   
-  sessionStore: session.SessionStore;
+  sessionStore: any;
   
   // Counters for auto-increment IDs
   private userCounter: number;
@@ -98,6 +104,10 @@ export class MemStorage implements IStorage {
   }
 
   // User methods
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+  
   async getUser(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
@@ -287,4 +297,184 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Implementation
+export class DatabaseStorage implements IStorage {
+  sessionStore: any;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({
+      pool, 
+      createTableIfMissing: true 
+    });
+  }
+
+  // User methods
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+  
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  // News methods
+  async getNews(): Promise<News[]> {
+    return await db.select().from(news).orderBy(desc(news.createdAt));
+  }
+
+  async getNewsById(id: number): Promise<News | undefined> {
+    const [newsItem] = await db.select().from(news).where(eq(news.id, id));
+    return newsItem;
+  }
+
+  async createNews(newsItem: InsertNews): Promise<News> {
+    const [createdNews] = await db.insert(news)
+      .values({ ...newsItem, createdAt: new Date() })
+      .returning();
+    return createdNews;
+  }
+
+  async updateNews(id: number, newsItem: Partial<InsertNews>): Promise<News | undefined> {
+    const [updatedNews] = await db.update(news)
+      .set(newsItem)
+      .where(eq(news.id, id))
+      .returning();
+    return updatedNews;
+  }
+
+  async deleteNews(id: number): Promise<boolean> {
+    const result = await db.delete(news).where(eq(news.id, id));
+    return true; // Return true for successful deletion
+  }
+
+  // Project methods
+  async getProjects(): Promise<Project[]> {
+    return await db.select().from(projects);
+  }
+
+  async getProjectById(id: number): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project;
+  }
+
+  async createProject(project: InsertProject): Promise<Project> {
+    const [createdProject] = await db.insert(projects).values(project).returning();
+    return createdProject;
+  }
+
+  async updateProject(id: number, project: Partial<InsertProject>): Promise<Project | undefined> {
+    const [updatedProject] = await db.update(projects)
+      .set(project)
+      .where(eq(projects.id, id))
+      .returning();
+    return updatedProject;
+  }
+
+  async deleteProject(id: number): Promise<boolean> {
+    const result = await db.delete(projects).where(eq(projects.id, id));
+    return true; // Return true for successful deletion
+  }
+
+  // Leader methods
+  async getLeaders(): Promise<Leader[]> {
+    return await db.select().from(leaders);
+  }
+
+  async getLeaderById(id: number): Promise<Leader | undefined> {
+    const [leader] = await db.select().from(leaders).where(eq(leaders.id, id));
+    return leader;
+  }
+
+  async createLeader(leader: InsertLeader): Promise<Leader> {
+    const [createdLeader] = await db.insert(leaders).values(leader).returning();
+    return createdLeader;
+  }
+
+  async updateLeader(id: number, leader: Partial<InsertLeader>): Promise<Leader | undefined> {
+    const [updatedLeader] = await db.update(leaders)
+      .set(leader)
+      .where(eq(leaders.id, id))
+      .returning();
+    return updatedLeader;
+  }
+
+  async deleteLeader(id: number): Promise<boolean> {
+    const result = await db.delete(leaders).where(eq(leaders.id, id));
+    return true; // Return true for successful deletion
+  }
+
+  // Event methods
+  async getEvents(): Promise<Event[]> {
+    return await db.select().from(events).orderBy(asc(events.eventDate));
+  }
+
+  async getEventById(id: number): Promise<Event | undefined> {
+    const [event] = await db.select().from(events).where(eq(events.id, id));
+    return event;
+  }
+
+  async createEvent(event: InsertEvent): Promise<Event> {
+    const [createdEvent] = await db.insert(events).values(event).returning();
+    return createdEvent;
+  }
+
+  async updateEvent(id: number, event: Partial<InsertEvent>): Promise<Event | undefined> {
+    const [updatedEvent] = await db.update(events)
+      .set(event)
+      .where(eq(events.id, id))
+      .returning();
+    return updatedEvent;
+  }
+
+  async deleteEvent(id: number): Promise<boolean> {
+    const result = await db.delete(events).where(eq(events.id, id));
+    return true; // Return true for successful deletion
+  }
+
+  // Feedback methods
+  async getFeedback(): Promise<Feedback[]> {
+    return await db.select().from(feedback).orderBy(desc(feedback.createdAt));
+  }
+
+  async getFeedbackById(id: number): Promise<Feedback | undefined> {
+    const [feedbackItem] = await db.select().from(feedback).where(eq(feedback.id, id));
+    return feedbackItem;
+  }
+
+  async createFeedback(feedbackItem: InsertFeedback): Promise<Feedback> {
+    const [createdFeedback] = await db.insert(feedback)
+      .values({ ...feedbackItem, createdAt: new Date(), isResolved: false })
+      .returning();
+    return createdFeedback;
+  }
+
+  async updateFeedback(id: number, feedbackItem: Partial<Feedback>): Promise<Feedback | undefined> {
+    const [updatedFeedback] = await db.update(feedback)
+      .set(feedbackItem)
+      .where(eq(feedback.id, id))
+      .returning();
+    return updatedFeedback;
+  }
+
+  async resolveFeedback(id: number): Promise<Feedback | undefined> {
+    const [resolvedFeedback] = await db.update(feedback)
+      .set({ isResolved: true })
+      .where(eq(feedback.id, id))
+      .returning();
+    return resolvedFeedback;
+  }
+}
+
+// Change to use database storage
+export const storage = new DatabaseStorage();

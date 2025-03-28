@@ -85,8 +85,10 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   fullName: true,
   phoneNumber: true,
+  role: true,
 }).extend({
-  password: z.string().min(6, "Password must be at least 6 characters")
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.string().default("user")
 });
 
 export const insertNewsSchema = createInsertSchema(news).omit({

@@ -393,6 +393,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User API routes (Admin only)
+  app.get("/api/users", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const users = await storage.getUsers();
+      
+      // Don't return password hashes
+      const usersWithoutPasswords = users.map((user: any) => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.json(usersWithoutPasswords);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching users" });
+    }
+  });
+
+  app.get("/api/users/:id", async (req, res) => {
+    try {
+      if (!req.isAuthenticated() || req.user?.role !== 'admin') {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Don't return the password hash
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching user" });
+    }
+  });
+
   // Feedback API routes
   app.get("/api/feedback", async (req, res) => {
     try {
